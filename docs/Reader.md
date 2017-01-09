@@ -144,42 +144,37 @@ Ejecuta la instancia de `ReaderT` con el entorno dado `r`.
 ```hs
 :: Reader r a ~> (a -> b) -> Reader r b
 ```
-Transforms the result of the computation of the `Reader` instance with the given
-function. 
+Transforma el resultado del cálculo de la instancia `Reader` con la función dada.
 
 #### `readerT.map`
 ```hs
 :: Monad m => ReaderT r m a ~> (a -> b) -> ReaderT r m b
 ```
-Transforms the result of the computation of the `ReaderT` instance with the
-given function.
+Transforma el resultado del cálculo de la instancia de `ReaderT` con la función dada.
 
 #### `reader.ap`
 ```hs
 :: Reader r (a -> b) ~> Reader r a -> Reader r b
 ```
-Applies the `a` in the given `Reader` instance to the function in this `Reader`
-instance, producing a new `Reader` instance containing the result.
+Aplica el `a` en la instancia de `Reader` a la función en esta instancia de `Reader`, produciendo una nueva instancia de `Reader` que contiene el resultado.
+
 
 #### `readerT.ap`
 ```hs
 :: Monad m => ReaderT r m (a -> b) ~> ReaderT r m a -> ReaderT r m b
 ```
-Applies the `a` in the given `ReaderT` instance to the function in this
-`ReaderT` instance, producing a new `ReaderT` instance containing the result.
+Aplica el `a` en la instancia de `ReaderT` a la función en esta instancia de `ReaderT`, produciendo una nueva instancia de `ReaderT` que contiene el resultado.
+
 
 #### `reader.chain`
 ```hs
 :: Reader r a ~> (a -> Reader r b) -> Reader r b
 ```
-Produces a new `Reader` instance by applying the provided function with the
-value of this `Reader` instance. Both this instance and the instance returned by
-the provided function will receive the same environment when run.
+Produce una nueva instancia de `Reader` aplicando la función proporcionada con el valor de esta instancia de Reader. Tanto esta instancia como la instancia devuelta por la función proporcionada recibirán el mismo entorno cuando se ejecute.
 
 #### `readerT.chain`
 ```hs
 :: Monad m => ReaderT r m a ~> (a -> ReaderT r m b) -> ReaderT r m b
 ```
-Produces a new `ReaderT` instance by applying the provided function with the
-value of this `ReaderT` instance. Both this instance and the instance returned
-by the provided function will receive the same environment when run.
+Produce una nueva instancia de `ReaderT` aplicando la función proporcionada con el valor de esta instancia de ReaderT. Tanto esta instancia como la instancia devuelta por la función proporcionada recibirán el mismo entorno cuando se ejecute.
+
