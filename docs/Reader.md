@@ -1,60 +1,37 @@
 # Reader
+El tipo `Reader` es utilizado para proveer un "entorno compartido" para los calculos.
+A menudo se utiliza como una forma de proporcionar configuración o inyectar dependencias, donde la responsabilidad de estas preocupaciones se delegan a los bordes exteriores de la aplicación. Se puede pensar en esto como si fuera una funcion que tiene acceso a los argumentos que le son proporcionados por el llamador de la funcion. De echo, el tipo `Reader` es efectivamente un tipo de envoltorio alrededor de una funcion para proporcionar las diversas instancias de monada y functor.
 
-The `Reader` type is used for providing a shared "environment" to computations.
-It is often used as a way of providing configuration or injecting dependencies,
-where the responsibility for these concerns is delegated to the outer edges of
-an application. You can think of this in much of the same way as how a function
-has access to arguments that are provided by the caller of the function. In
-fact, the `Reader` type is effectively a wrapper type around a function to
-provide the various monad and functor instances.
+## Construcción
 
-## Construction
-
-A `Reader` type can be constructed via the single constructor function
-`Reader r a :: (r -> a) -> Reader r a`. The function given to the constructor is
-responsible for computing some value based on the environment it receives.
+El tipo `Reader` puede ser construido a través de una simple funcion constructora `Reader r a :: (r -> a) -> Reader r a` La función dada al constructor es responsable de calcular un valor basado en el entorno que recibe.
 
 ```js
 const dbReader = Reader(env => env.dbConn);
 ```
-
-A static `Reader` instance is also available via `Reader.ask` which passes its
-environment straight through, providing access to the environment within
-functions given to its `chain` method.
+Una instancia estática `Reader` también está disponible a través de Reader.ask que pasa su entorno directamente, proporcionando acceso al entorno dentro de las funciones a su metodo `chain`.
 
 ```js
 const dbReader = Reader.ask.chain(env => Reader.of(configureDb(env.dbConn)));
 ```
+Para proporcionar un mejor soporte para los tipos de mónadas anidadas como `Reader r (m a)` donde `m` es algún tipo de mónada, se puede construir un transformador de mónada haciendo pasar el tipo de monada anidado al constructor del transformador.
 
-To provided better support for nested monad types such as `Reader r (m a)` where
-`m` is some monad type, a monad transformer can be constructed by passing the
-nested monad type to the transformer constructor.
 
 ```js
 // Reader.T :: Monad m => { of: a -> m a } -> ReaderT r m a
 const ReaderTMaybe = Reader.T(Maybe);
 ```
+Esto conecta los diversos métodos disponibles en una mónada (`of`, `map`, `ap` y `chain`) desde la instancia externa de `ReaderT` al tipo de mónada interna, eliminando la necesidad de "desempaquetar" cada capa de instancias de mónada en las que interactúa la instancia de transformador.
 
-This wires up the various methods available on a monad (`of`, `map`, `ap` and
-`chain`) from the outer `ReaderT` instance to the inner monad type, removing the
-need to "unpack" each layer of monad instances where the transformer instance is
-interacted with.
-
-The static `lift` method on a `ReaderT` type allows for an instance of the inner
-monad type to be "lifted" into a `ReaderT` instance, similar to how `of` will
-lift an ordinary value into an applicative instance.
+El método estático `lift` en un tipo de `ReaderT` permite que una instancia del tipo de mónada interna se "levante" en una instancia de `ReaderT`, similar a cómo se levanta un valor ordinario en una instancia de un functor aplicativo.
 
 ```js
 const maybe42R = ReaderTMaybe.lift(Just(42)); 
 ```
 
-## Interaction
+## Interacción
 
-Code that requires access to the environment needs to exist within a `Reader`
-type. To ensure that code is still composable, `Reader` implements the monad
-specification and by extension, applicative and functor too. This allows for
-various `Reader` instances to be composed with each other, while also being
-able to lift plain functions to operate within the context of the `Reader` type.
+El código que requiere acceso al entorno debe existir dentro de un tipo `Reader`. Para asegurarse de que el código sigue siendo componible, `Reader` implementa la especificación de mónada y por extensión tambien la especificacion de `applicative` y `functor`. Esto permite que varias instancias de `Reader` estén compuestas entre sí, mientras que también puede elevar funciones llanas para funcionar dentro del contexto del tipo `Reader`.
 
 ```js
 /**
@@ -79,8 +56,7 @@ fooImageFuture = fetchUserImage('foo@example.com').run({
 });
 ```
 
-Alternatively, a `ReaderT` could be used to help declutter some of the nested
-`chain` and `map` calls in the `fetchUserImage` function in the example above.
+Alternativamente, un `ReaderT` podría ser utilizado para ayudar a reducir algunas de las llamadas anidadas de `chain` y `map` en la función `fetchUserImage` en el ejemplo anterior.
 
 ```js
 //:: (Env -> Future e a) -> ReaderT Env (Future e) a
@@ -96,71 +72,73 @@ fetchUserImage = email => App.ask.chain(env =>
     App.lift(fetchImage(userRow.imageURL, env.httpClientPool))));
 ```
 
-## Reference
+## Referencia
 
-### Constructors
+### Constructores
 
 #### `Reader`
 ```hs
 :: (r -> a) -> Reader r a
 ```
-Constructs a `Reader` instance that computes some value `a` using some
-environment `r`.
+Construye una instancia de `Reader` que calcula un valor `a` usando un entorno `r`.
 
 #### `Reader.T`
 ```hs
 :: Monad m => { of: a -> m a } -> (r -> m a) -> ReaderT r m a
 ```
-Constructs a `ReaderT` instance that computes some value `a` within a monad `m`
-using some environment `r`.
+Construye una instancia de `ReaderT` que calcula un valor `a` dentro de una monada `m` usando algún entorno `r`.
 
-### Static properties
+### Propiedades estaticas
 
 #### `Reader.ask`
 ```hs
 :: Reader r r
 ```
-A static `Reader` instance that just returns its environment.
+Una instancia estatica de `Reader` que simplemente devuelve su entorno.
 
 #### `ReaderT.ask`
 ```hs
 :: Monad m => Reader r m a
 ```
-A static `ReaderT` instance that just returns its environment.
+Una instancia estática de `ReaderT` que simplemente devuelve su entorno.
 
-### Static functions
+
+### Funciones estaticas
 
 #### `Reader.of`
 ```hs
 :: a -> Reader r a
 ```
-Produces a pure `Reader` instance for the given value.
+Produce una instancia pura de `Reader` para el valor dado.
 
 #### `ReaderT.of`
 ```hs
 :: Monad m => a -> Reader r m a
 ```
-Produces a pure `ReaderT` instance for the given value.
+Produce una instancia pura de `ReaderT` para el valor dado.
+
 
 #### `ReaderT.lift`
 ```hs
 :: Monad m => m a -> Reader r m a
 ```
-Lifts a monad value into a `ReaderT` instance.
 
-### Instance methods
+Eleva un valor de monada dentro de una instancia de `ReaderT`
+
+### Metodos de instancia
 
 #### `reader.run`
 ```hs
 :: Reader r a ~> r -> a
 ```
-Executes the `Reader` instance with the given environment `r`.
+Ejecuta la instancia de `Reader` con el entorno dado `r`.
+
 
 #### `readerT.run`
 ```hs
 :: Monad m => ReaderT r m a ~> r -> m a
 ```
-Executes the `ReaderT` instance with the given environment `r`.
+Ejecuta la instancia de `ReaderT` con el entorno dado `r`.
 
 #### `reader.map`
 ```hs
