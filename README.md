@@ -1,16 +1,14 @@
 ramda-fantasy
 =============
 
-[Fantasy Land][1] compatible types for easy integration with [Ramda][2].
+[Fantasy Land][1] Tipos compatibles para la sencilla integracion con [Ramda][2].
 
-## Project status
-This project is in alpha status. The implementation of the Fantasy Land spec should be *mostly*
-stable. Any methods outside of the Fantasy Land spec are subject to change. The types also have
-not undergone thorough testing/use yet.
+## Estado del proyecto
+Este proyecto se encuentra en estado alfa. La implementación de las especificaciones de Fantasy Land deberia ser en su mayoria estable. Cualquier método fuera de las especificaciones de Fantasy Land está sujeto a cambios. Los tipos también no han sido sometidos a pruebas exhaustivas / uso aún.
 
-## Available types
+## Tipos disponibles.
 
-| Name            | [Setoid][3]  | [Semigroup][4] | [Functor][5] | [Applicative][6] | [Monad][7] | [Foldable][8] |
+| Nombre     | [Setoid][3]  | [Semigroup][4] | [Functor][5] | [Applicative][6] | [Monad][7] | [Foldable][8] |
 | --------------- | :----------: | :------------: | :----------: | :--------------: | :--------: | :-----------: |
 | [Either][9]     |    **✔︎**     |                |     **✔︎**    |      **✔︎**       |   **✔︎**    |               |
 | [Future][10]    |              |                |     **✔︎**    |      **✔︎**       |   **✔︎**    |               |
@@ -21,8 +19,8 @@ not undergone thorough testing/use yet.
 | [Tuple][15]     |    **✔︎**     |     **✔︎**      |     **✔︎**    |                  |            |               |
 
 
-Access like so:
-```
+El acceso es asi:
+```js
   var Either = require('ramda-fantasy').Either;
 ```
 
