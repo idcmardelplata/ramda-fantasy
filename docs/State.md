@@ -1,18 +1,14 @@
-# State
+# Estado
 
-The `State` type can be used to store some state along with a computation.
+El tipo `State` se puede utilizar para almacenar un estado a lo largo de un calculo.
 
-## Construction
+## Construccion
 
-`State` instances should be obtained via the `get`, `gets`, `put`, and `modify`
-static properties on the `State` object. These instances describe the different
-ways to access and modify the stateful computation that will eventually be
-evaluated and are described in further detail below.
+Las instancias de `State` deben obtenerse a través de las propiedades estáticas `get`, `gets`, `put` y `modify` del objeto `State`. Estas instancias describen las diferentes maneras de acceder y modificar la computación con estado que eventualmente evaluaremos y describiremos con más detalle a continuación.
 
-A `State` transformer is also available via `State.T` which can be used to
-extend some monad with stateful behaviour.
+Un transformador de `State` tambien esta disponible via `State.T`. Que se puede utilizar para extender alguna mónada con comportamiento con estado.
 
-## Interaction
+## Interacción
 
 `State` instances are primarily interacted with and composed via the `chain`
 method of the various static instances available on the `State` type object. To
