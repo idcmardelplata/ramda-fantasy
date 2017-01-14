@@ -62,6 +62,13 @@ module.exports = {
         return Type.of(f(a));
       });
     };
+  },
+  
+const getJoinForTypes = function(m) {
+  return function() {
+    return this.value instanceof m
+      ? this.value.join()
+      : m.of(this.value);
+    }
   }
-
 };
