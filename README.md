@@ -4,7 +4,7 @@ ramda-fantasy
 [Fantasy Land][1] Tipos compatibles para la sencilla integracion con [Ramda][2].
 
 ## Estado del proyecto
-Este proyecto se encuentra en estado alfa. La implementación de las especificaciones de Fantasy Land deberia ser en su mayoria estable. Cualquier método fuera de las especificaciones de Fantasy Land está sujeto a cambios. Los tipos también no han sido sometidos a pruebas exhaustivas / uso aún.
+Este proyecto se encuentra en estado alfa. La implementación de las especificaciones de Fantasy Land deberia ser en su mayoria estable. Cualquier método fuera de las especificaciones de Fantasy Land está sujeto a cambios. Los tipos no han sido sometidos a pruebas exhaustivas de uso aún.
 
 ## Tipos disponibles.
 
