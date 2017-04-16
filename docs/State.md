@@ -1,6 +1,6 @@
 # Estado
 
-El tipo `State` se puede utilizar para almacenar un estado a lo largo de un calculo.
+El tipo `State` se puede utilizar para almacenar un estado a lo largo de una computación.
 
 ## Construccion
 
@@ -10,20 +10,11 @@ Un transformador de `State` tambien esta disponible via `State.T`. Que se puede 
 
 ## Interacción
 
-`State` instances are primarily interacted with and composed via the `chain`
-method of the various static instances available on the `State` type object. To
-access the current state, `State.get` is a static instance that can be used to
-provide the state to the `chain`, `ap` and `map`. Similarly, `State.gets(fn)`
-can provide the state transformed by the provided `fn` function. To change the
-state of the computation, `State.put(newValue)` can be used to replace the
-existing state with `newValue`. The current state can also be transformed by
-providing a transformation function to `State.modify(transformFn)`.
+Las instancias de `State` interactuan principalmente con composiciones a trabes del metodo chain de las diversas instancias estaticas disponibles en el objeto de tipo `State`. Para acceder al estado actual, `State.get` es una instancias estatica que se puede utilizar para proporcionar el estado a `chain`, `ap` y `map`. De forma similar, `State.gets(fn)`,nos proporciona el estado transformado por la función fn asignada.
+Para cambiar el estado de la computación, `State.put(newValue)` se puede utilizar para reemplazar el estado existente con el nuevo valor `newValue`.
+El estado actual tambien puede ser transformado proporcionando una función de transformación a `State.modify(transformFn)`.
 
-Once a `State` instance is defined, an initial seed state can be provided to
-either the `eval` or `exec` methods to evaluate the computation and return the
-result of the computation or the final state, respectively. Alternatively, the
-`run` method can be called to return both the result and the final state within
-a `Tuple` instance.
+Una vez que una instancia de `State` es definida, una semilla inicial se puede proporcionar a cualquiera de los metodos `eval` o `exec` para evaluar la computación y retornar su resultado o el estado final, respectivamente. Alternativamente, el metodo `run` puede ser llamado para retornar ambos, el resultado y el estado final, en una instancia de `Tuple`
 
 ```js
 // An example deterministic pseudorandom number generator
@@ -58,185 +49,162 @@ const rollDice = pair(rollDie);
 rollDice.eval(123); // Tuple(2, 5)
 ```
 
-## Reference
+## Referencia
 
-### Constructors
+### Constructores
 
 #### `State`
 ```hs
 :: (s -> Identity (Tuple a s)) -> State s a
 ```
-Constructs a `State` instance that represent a pure computation from some state
-to a new state and a result. Note this constructor requires the given function
-to return an `Identity` instance. It is generally recommended to use the static
-properties and methods provided on the `State` object rather than using this
-constructor.
+Construye una instancia de `State` que representa una computación pura a partir de un estado a otro estado y resultado. Tenga en cuenta que este constructor requiere que la función dada retorne una instancia de Identity. En general, se recomienda el uso de las propiedades estaticas y metodos proporcionados en el objeto `State` en lugar de utilizar este constructor.
 
 #### `State.T`
 ```hs
 :: Monad m => { of :: a -> m a } -> (s -> m (Tuple a s)) -> StateT s m a
 ```
-Constructs a `StateT` instance that represent a computation from some state to a
-new state and a result in the context of some other monad. It is generally
-recommended to use the static properties and methods provided on the `State`
-object rather than using this constructor.
+Construye una instancia de `State.T` que representa una computación de algún estado a un nuevo estado y resultado en el contexto de alguna otra monada. En general se recomienda el uso de las propiedades estaticas y metodos proporcionados en el objeto `State` en lugar de utilizar este constructor.
 
-### Static properties
+### Propiedades estaticas
 
 #### `State.get`
 ```hs
 :: State s s
 ```
-A static `State` instance that retrieves the current state.
+Una instancia estatica de `State` que retorna el estado actual.
 
 #### `StateT.get`
 ```hs
 :: Monad m => StateT s m s
 ```
-A static `StateT` instance that retrieves the current state.
+Una instancia estatica de `StateT` que retorna el estado actual.
 
-### Static methods
+### Metodos estaticos
 
 #### `State.gets`
 ```hs
 :: (s -> a) -> State s a
 ```
-Returns a `State` instance the retrieves the current state transformed by the
-given function.
+Devuelve una instancia `State` que recupera el estado actual transformado por la función dada.
 
 #### `StateT.gets`
 ```hs
 :: Monad m => (s -> a) -> StateT s m a
 ```
-Returns a `State` instance the retrieves the current state transformed by the
-given function.
+Devuelve una instancia `State` que recupera el estado actual transformado por la función dada.
 
 #### `State.put`
 ```hs
 :: s -> State s a
 ```
-Returns a `State` instance the stores the provided state.
+Retorna una instancia de `State` que almacena el estado proporcionado.
 
 #### `StateT.put`
 ```hs
 :: Monad m => s -> StateT s m a
 ```
-Returns a `StateT` instance the stores the provided state
+Retorna una instancia de `StateT` que almacena el estado proporcionado.
 
 #### `State.modify`
 ```hs
 :: (s -> s) -> State s a
 ```
-Returns a `State` instance the modifies the stored state with the provided
-function.
+Retorna una instancia de `State` que modifica el estado almacenado con la funcion proporcionada.
 
 #### `StateT.modify`
 ```hs
 :: Monad m => (s -> s) -> StateT s m a
 ```
-Returns a `StateT` instance the modifies the stored state with the provided
-function.
+Retorna una instancia de `StateT` que modifica el estado almacenado con la funcion proporcionada.
 
 #### `State.of`
 ```hs
 :: a -> State s a
 ```
-Returns a `State` instance that will evaluate to the provided value.
+Retorna una instancia de `State` que evaluara el valor proporcionado.
 
 #### `StateT.of`
 ```hs
 :: Monad m => a -> StateT s m a
 ```
-Returns a `StateT` instance that will evaluate to the provided value.
+Retorna una instancia de `StateT` que evaluara el valor proporcionado.
 
 #### `StateT.lift`
 ```hs
 :: Moand m => m a -> StateT s m a
 ```
-Lifts the given monad into a `StateT` instance.
+Eleva la monada dada en una instancia de `StateT`.
 
-### Instance methods
+### Métodos de instancia
 
 #### `state.run`
 ```hs
 :: State s a ~> s -> Tuple a s
 ```
-Runs the `State` instance, seeded by the provided value and returns the final
-state along with the result in a `Tuple`.
+Ejecuta la instancia de `State` que se inicializo con el valor proporcionado y retorna el estado final junto con el resultado en una `Tuple`.
 
 #### `stateT.run`
 ```hs
 :: Monad m => StateT s m a ~> s -> m Tuple(a, s)
 ```
-Runs the `StateT` instance, seeded by the provided value and returns the final
-state along with the result in a `Tuple` within the underlying monad type of the
-transformer.
+Ejecuta la instancia de `StateT` inicializada con el valor proporcionado y retorna el estado final junto con el resultado en una `Tuple` dentro del tipo monada subyacente del transformador.
 
 #### `state.eval`
 ```hs
 :: State s a ~> s -> a
 ```
-Runs the `State` instance, seeded by the provided value and returns the result.
+Ejecuta la instancia `State` inicializada por el valor proporcionado y retorna el resultado.
 
 #### `stateT.eval`
 ```hs
 :: Monad m => StateT s m a ~> s -> m a
 ```
-Runs the `StateT` instance, seeded by the provided value and returns the result
-in the context of the underlying monad type of the transformer.
+Ejecuta la instancia `StateT` inicializada por el valor proporcionado y devuelve el resultado en el contexto del tipo monada subyacente del transformador.
 
 #### `state.exec`
 ```hs
 :: State s a ~> s -> s
 ```
-Runs the `State` instance, seeded by the provided value and returns the final
-state.
+Ejecuta la instancia de `State`, inicializada por el valor proporcionado y retorna el estado final.
 
 #### `stateT.exec`
 ```hs
 :: Monad m => StateT s m a ~> s -> m s
 ```
-Runs the `StateT` instance, seeded by the provided value and returns the final
-state in the context of the underlying monad type of the transformer.
+Ejecuta la instancia de `StateT`, inicializada por el valor proporcionado y retorna el estado final en el contexto del tipo monada subyacente del transformador.
 
 #### `state.map`
 ```hs
 :: State s a ~> (a -> b) -> State s b
 ```
-Transforms the eventual result of the `State` instance with the provided
-function.
+Transforma el resultado eventual de la instancia de `State` con la funcion proporcionada.
 
 #### `stateT.map`
 ```hs
 :: Monad m => StateT s m a ~> (a -> b) -> StateT s m b
 ```
-Transforms the eventual result of the `StateT` instance with the provided
-function.
+Transforma el resultado eventual de la instancia de `StateT` con la funcion proporcionada 
 
 #### `state.ap`
 ```hs
 :: State s (a -> b) ~> State s a -> State s b
 ```
-Applies the resulting function of this `State` instance to the result of the
-provided `State` instance to produce a new `State` instance.
+Aplica la funcion resultante de esta instancia de `State` al resultado de la instancia `State` provista para producir una nueva instancia de `State`
 
 #### `stateT.ap`
 ```hs
 :: Monad m => StateT s m (a -> b) ~> StateT s m a -> StateT s m b
 ```
-Applies the resulting function of this `StateT` instance to the result of the
-provided `StateT` instance to produce a new `StateT` instance.
+Aplica la funcion resultante de esta instancia de `StateT` al resultado de la instancia `State` provista para producir una nueva instancia de `State`
 
 #### `state.chain`
 ```hs
 :: State s a ~> (a -> State s b) -> State s b
 ```
-Creates a new `State` instance by applying the given function to the result of
-this `State` instance.
+Crea una nueva instancia de `State` mediante la aplicación de la funcion dada al resultado de esta instancia `State`
 
 #### `stateT.chain`
 ```hs
 :: StateT s m a ~> (a -> StateT s m b) -> StateT s m b
 ```
-Creates a new `StateT` instance by applying the given function to the result of
-this `StateT` instance.
+Crea una nueva instancia de `StateT` mediante la aplicación de la funcion dada al resultado de esta instancia `StateT`
