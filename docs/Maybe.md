@@ -83,6 +83,13 @@ Retorna `true` si la instancia de `Maybe` es `Just`, caso contrario retorna `fal
 Retorna `true` si la instancia de `Maybe` es `Nothing`, caso contrario retorna `false`
 
 
+#### `Maybe.toMaybe`
+```hs
+:: a? -> Maybe a
+```
+Returns `Nothing` for a `null`/`undefined` value, otherwise a `Just` of the
+value for any other value.
+
 ### Instance methods
 
 #### `maybe.getOrElse`

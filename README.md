@@ -16,12 +16,15 @@ Este proyecto se encuentra en estado alfa. La implementación de las especificac
 | [Maybe][13]     |    **✔︎**     |                |     **✔︎**    |      **✔︎**       |   **✔︎**    |     **✔︎**     |
 | [Reader][14]    |              |                |     **✔︎**    |      **✔︎**       |   **✔︎**    |               |
 | [Tuple][15]     |    **✔︎**     |     **✔︎**      |     **✔︎**    |                  |            |               |
-
+| [State][17]     |               |               |       **✔︎**   |    **✔︎**        |   **✔︎**    |               |       **✔︎**        |
+=======
 
 El acceso es asi:
 ```js
   var Either = require('ramda-fantasy').Either;
 ```
+## available translations
+[Spanish](https://github.com/idcmardelplata/ramda-fantasy)
 
 [1]: https://github.com/fantasyland/fantasy-land
 [2]: https://github.com/ramda/ramda
@@ -38,3 +41,5 @@ El acceso es asi:
 [13]: docs/Maybe.md
 [14]: docs/Reader.md
 [15]: docs/Tuple.md
+[16]: https://github.com/fantasyland/fantasy-land#chainrec
+[17]: docs/State.md

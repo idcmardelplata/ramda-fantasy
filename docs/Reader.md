@@ -98,7 +98,7 @@ Una instancia estatica de `Reader` que simplemente devuelve su entorno.
 
 #### `ReaderT.ask`
 ```hs
-:: Monad m => Reader r m a
+:: Monad m => ReaderT r m a
 ```
 Una instancia estática de `ReaderT` que simplemente devuelve su entorno.
 
@@ -113,14 +113,14 @@ Produce una instancia pura de `Reader` para el valor dado.
 
 #### `ReaderT.of`
 ```hs
-:: Monad m => a -> Reader r m a
+:: Monad m => a -> ReaderT r m a
 ```
 Produce una instancia pura de `ReaderT` para el valor dado.
 
 
 #### `ReaderT.lift`
 ```hs
-:: Monad m => m a -> Reader r m a
+:: Monad m => m a -> ReaderT r m a
 ```
 
 Eleva un valor de monada dentro de una instancia de `ReaderT`

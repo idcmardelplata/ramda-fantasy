@@ -27,9 +27,6 @@ Either.of = Either.prototype.of = function(value) {
 
 Either.prototype.chain = util.returnThis; // throw?
 
-
-Either.equals = Either.prototype.equals = util.getEquals(Either);
-
 Either.either = curry(function either(leftFn, rightFn, e) {
   if (e instanceof _Left) {
     return leftFn(e.value);
@@ -70,6 +67,19 @@ _Right.prototype.chain = function(f) {
   return f(this.value);
 };
 
+//chainRec
+Either.chainRec = Either.prototype.chainRec = function(f, i) {
+  var res, state = util.chainRecNext(i);
+  while (state.isNext) {
+    res = f(util.chainRecNext, util.chainRecDone, state.value);
+    if (Either.isLeft(res)) {
+      return res;
+    }
+    state = res.value;
+  }
+  return Either.Right(state.value);
+};
+
 _Right.prototype.bimap = function(_, f) {
   return new _Right(f(this.value));
 };
@@ -81,6 +91,8 @@ _Right.prototype.extend = function(f) {
 _Right.prototype.toString = function() {
   return 'Either.Right(' + toString(this.value) + ')';
 };
+
+_Right.prototype.equals = util.getEquals(_Right);
 
 Either.Right = function(value) {
   return new _Right(value);
@@ -108,9 +120,16 @@ _Left.prototype.toString = function() {
   return 'Either.Left(' + toString(this.value) + ')';
 };
 
+_Left.prototype.equals = util.getEquals(_Left);
+
 Either.Left = function(value) {
   return new _Left(value);
 };
 
+
+// either
+Either.prototype.either = function instanceEither(leftFn, rightFn) {
+  return this.isLeft ? leftFn(this.value) : rightFn(this.value);
+};
 
 module.exports = Either;

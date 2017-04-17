@@ -43,6 +43,18 @@ describe('Maybe', function() {
     jsv.assert(arb);
   });
 
+  it('is a Semigroup', function() {
+    var sTest = types.semigroup;
+
+    // Inner type needs to be a semigroup.
+    var s = MaybeArb(jsv.array(jsv.nat));
+    var s1 = MaybeArb(jsv.array(jsv.nat));
+    var s2 = MaybeArb(jsv.array(jsv.nat));
+
+    jsv.assert(jsv.forall(s, sTest.iface));
+    jsv.assert(jsv.forall(s, s1, s2, sTest.associative));
+  });
+
   it('is a Functor', function() {
     var fTest = types.functor;
 
@@ -73,6 +85,49 @@ describe('Maybe', function() {
 
     jsv.assert(jsv.forall(m, cTest.iface));
     jsv.assert(jsv.forall(m, f, f, env, cTest.associative));
+  });
+
+  describe('ChainRec', function() {
+    it('is a ChainRec', function() {
+      var cTest = types.chainRec;
+      var predicate = function(a) {
+        return a.length > 5;
+      };
+      var done = Maybe.of;
+      var x = 1;
+      var initial = [x];
+      var next = function(a) {
+        return Maybe.of(a.concat([x]));
+      };
+      assert.equal(true, cTest.iface(Maybe.of(1)));
+      assert.equal(true, cTest.equivalence(Maybe, predicate, done, next, initial));
+    });
+
+    it('is stacksafe', function() {
+      var a = Maybe.chainRec(function(next, done, n) {
+        if (n === 0) {
+          return Maybe.of(done('DONE'));
+        } else {
+          return Maybe.of(next(n - 1));
+        }
+      }, 100000);
+      assert.equal(true, Maybe.of('DONE').equals(a));
+    });
+
+    it('responds to failure immediately', function() {
+      assert.equal(true, Maybe.Nothing().equals(Maybe.chainRec(function(/*next, done, n*/) {
+        return Maybe.Nothing();
+      }, 100)));
+    });
+
+    it('responds to failure on next step', function() {
+      return Maybe.Nothing().equals(Maybe.chainRec(function(next, done, n) {
+        if (n === 0) {
+          return Maybe.Nothing();
+        }
+        return Maybe.of(next(n - 1));
+      }, 100));
+    });
   });
 
   it('is a Monad', function() {
@@ -163,6 +218,19 @@ describe('Maybe usage', function() {
     it('returns the first argument for a Nothing', function() {
       jsv.assert(jsv.forall('nat -> nat', 'nat', 'nat', function(f, n) {
         return R.equals(Maybe.maybe(n, f, Maybe.Nothing()), n);
+      }));
+    });
+  });
+
+  describe('#toMaybe', function() {
+    it('produces a Nothing for null/undefined', function() {
+      assert(Maybe.toMaybe(null).isNothing);
+      assert(Maybe.toMaybe(void 0).isNothing);
+    });
+
+    it('produces a Just for non-null values', function() {
+      jsv.assert(jsv.forall(jsv.integer, function(n) {
+        return Maybe.toMaybe(n).isJust;
       }));
     });
   });

@@ -51,6 +51,17 @@ Maybe.maybe = curry(function(nothingVal, justFn, m) {
   }, nothingVal);
 });
 
+Maybe.toMaybe = Maybe;
+
+// semigroup
+Just.prototype.concat = function(that) {
+  return that.isNothing ? this : this.of(
+    this.value.concat(that.value)
+  );
+};
+
+Nothing.prototype.concat = util.identity;
+
 // functor
 Just.prototype.map = function(f) {
   return this.of(f(this.value));
@@ -78,6 +89,20 @@ Nothing.prototype.ap = util.returnThis;
 Just.prototype.chain = util.baseMap;
 
 Nothing.prototype.chain = util.returnThis;
+
+
+//chainRec
+Maybe.chainRec = Maybe.prototype.chainRec = function(f, i) {
+  var res, state = util.chainRecNext(i);
+  while (state.isNext) {
+    res = f(util.chainRecNext, util.chainRecDone, state.value);
+    if (Maybe.isNothing(res)) {
+      return res;
+    }
+    state = res.value;
+  }
+  return Maybe.Just(state.value);
+};
 
 
 //

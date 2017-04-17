@@ -49,6 +49,48 @@ describe('Either', function() {
     jsv.assert(jsv.forall(eNatArb, fnEArb, fnEArb, cTest.associative));
   });
 
+  describe('ChainRec', function() {
+    it('is a ChainRec', function() {
+      var cTest = types.chainRec;
+      var predicate = function(a) {
+        return a.length > 5;
+      };
+      var done = Either.of;
+      var x = 1;
+      var initial = [x];
+      var next = function(a) {
+        return Either.of(a.concat([x]));
+      };
+      assert.equal(true, cTest.iface(Either.of(1)));
+      assert.equal(true, cTest.equivalence(Either, predicate, done, next, initial));
+    });
+
+    it('is stacksafe', function() {
+      assert.equal(true, Either.of('DONE').equals(Either.chainRec(function(next, done, n) {
+        if (n === 0) {
+          return Either.of(done('DONE'));
+        } else {
+          return Either.of(next(n - 1));
+        }
+      }, 100000)));
+    });
+
+    it('responds to failure immediately', function() {
+      assert.equal(true, Either.Left("ERROR").equals(Either.chainRec(function(/*next, done, n*/) {
+        return Either.Left("ERROR");
+      }, 100)));
+    });
+
+    it('responds to failure on next step', function() {
+      assert.equal(true, Either.Left("ERROR").equals(Either.chainRec(function(next, done, n) {
+        if (n === 0) {
+          return Either.Left("ERROR");
+        }
+        return Either.of(next(n - 1));
+      }, 100)));
+    });
+  });
+
   it('is a Monad', function() {
     jsv.assert(jsv.forall(eNatArb, types.monad.iface));
   });
@@ -131,6 +173,46 @@ describe('Either', function() {
                          'Either.Right([1, 2, 3])');
     });
 
+  });
+
+  describe('#equals', function() {
+
+    it('returns true if both contain equal values and are both Left', function() {
+      assert.equal(true, Either.Left(1).equals(Either.Left(1)));
+    });
+
+    it('returns true if both contain equal values and are both Right', function() {
+      assert.equal(true, Either.Right(1).equals(Either.Right(1)));
+    });
+
+    it('returns false if both contain equal values but are of different constructors', function() {
+      assert.equal(false, Either.Left(1).equals(Either.Right(1)));
+    });
+
+    it('returns false if both contain different values and are both Left', function() {
+      assert.equal(false, Either.Left(0).equals(Either.Left(1)));
+    });
+
+    it('returns false if both contain different values and are both Right', function() {
+      assert.equal(false, Either.Right(0).equals(Either.Right(1)));
+    });
+
+  });
+
+
+
+  describe('#either', function() {
+    it('returns the value of a Left after applying the first function arg', function() {
+      jsv.assert(jsv.forall(leftArb(jsv.nat), fnNatArb, fnNatArb, function(e, f, g) {
+        return e.either(f, g) === f(e.value);
+      }));
+    });
+
+    it('returns the value of a Right after applying the second function arg', function() {
+      jsv.assert(jsv.forall(rightArb(jsv.nat), fnNatArb, fnNatArb, function(e, f, g) {
+        return e.either(f, g) === g(e.value);
+      }));
+    });
   });
 
 });
