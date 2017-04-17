@@ -1,4 +1,4 @@
-# Estado
+# State
 
 El tipo `State` se puede utilizar para almacenar un estado a lo largo de una computación.
 
