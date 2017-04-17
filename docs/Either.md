@@ -1,10 +1,10 @@
 # Either
 
-The `Either` type is very similar to the `Maybe` type, in that it is often used
-to represent the notion of failure in some way. The difference between the two
-is that an error represented with an `Either` can hold some value (perhaps an
-exception or error message), while `Maybe` can only indicate that absence of
-some value.
+El tipo `Either` es muy similar al tipo `Maybe`, el cual se utiliza a menudo para
+representar la nocion de un fallo de alguna manera. La diferencia entre los dos
+es que un error representado con `Either` puede contener algun valor 
+(tal vez una excepcion o algun mensaje de error), mientras que `Maybe`
+solo puede indicar la ausencia de algun valor. 
 
 While the `Either` type is often used to represent potential errors, there is
 nothing restricting it to this purpose. It is therefore perhaps more appropriate
