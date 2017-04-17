@@ -17,7 +17,6 @@ Este proyecto se encuentra en estado alfa. La implementación de las especificac
 | [Reader][14]    |              |                |     **✔︎**    |      **✔︎**       |   **✔︎**    |               |
 | [Tuple][15]     |    **✔︎**     |     **✔︎**      |     **✔︎**    |                  |            |               |
 | [State][17]     |               |               |       **✔︎**   |    **✔︎**        |   **✔︎**    |               |       **✔︎**        |
-=======
 
 El acceso es asi:
 ```js
