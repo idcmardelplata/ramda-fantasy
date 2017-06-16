@@ -1,15 +1,10 @@
 # Future
 
-The `Future` type is used to represent some future, often asynchronous,
-action that may potentially fail. It is similar to the native JS `Promise` type,
-however the computation of a `Promise` is executed immediately, while the
-execution of a `Future` instance is delayed until explicitly requested.
+El tipo `Future` se utiliza para representar alguna acción futura, a menudo asincrona, que potencialmente puede fallar. Es similar al tipo `Promise` nativo de JavaScript, sin embargo la computacion de una promesa es ejecutada inmediatamente, mientras que la ejecución de una instancia de `Future` se retrasa hasta que se solicite explicitamente.
 
-## Construction
+## Construcción
 
-The `Future` type consists of a single constructor that accepts a function which
-must accept the two continuation functions used to resolve or reject the
-`Future` instance: `Future :: ((e -> (), a -> ()) -> ()) -> Future e a`.
+El tipo `Future` consiste en un unico constructor que acepta una funcion que debe aceptar las dos funciones de continuación usadas para resolver o rechazar la instancia de `Future`: `Future :: ((e -> (), a -> ()) -> ()) -> Future e a`.
 
 ```js
 delayed = (ms, val) => Future((reject, resolve) =>
@@ -17,16 +12,11 @@ delayed = (ms, val) => Future((reject, resolve) =>
             : setTimeout(() => resolve(val), ms));
 ```
 
-## Interaction
+## Interacción
 
-Once a `Future` instance has been created, the various methods attached to the
-instance can be used to instruct further transformations to take place after
-the `Future` has been resolved or rejected. It is important to note that nothing
-is actually executed until the `fork` method is eventually called.
+Una vez que se ha creado una instancia de `Future`, los diversos metodos adjuntos a la instancia se pueden utilizar para instruir a que se produzcan nuevas transformaciones a la instancia de `Future` despues de que se haya resuelto o rechazado. Es importante tener en cuenta de que nada se ejecuta realmente hasta que el metodo `fork` sea llamado explicitamente.
 
-The `map`, `ap` and `chain` functions can be used to transform resolved values
-of a `Future` instance, while `chainReject` can be used to transform or recover
-from a rejected value.
+Las funciones `map`, `ap` y `chain` se pueden utilizar para transformar valores resueltos de una instancia de `Future`, mientras que `chainReject` se puede utilizar para transformar o recuperar un valor rechazado.
 
 ```js
 //:: String -> Future Error [String]
@@ -41,98 +31,76 @@ cat = file => Future((reject, resolve) =>
 catDir = dir => ls(dir).chain(R.traverse(Future.of, cat)).map(R.join('\n'));
 ```
 
-To execute a `Future` instance, the `fork` method must be called with an
-`onRejected` and `onResolved` handler functions. If `fork` is called multiple
-times, the action described by the `Future` instance will be invoked multiple
-times. If desired, a `Future` instance can be given to `Future.cache` which
-returns a new instance that ensures the action will only ever be invoked once,
-with the cached resolved or rejected value being used for subsequent calls to
-`fork`.
+Para ejecutar una instancia de `Future`, el metodo `fork` debe ser llamado con un manejador de funciones `onRejected` y un `onResolved`. Si `fork` es llamado multiples veces, la acción descrita por la instancia de `Future` se invocara multiples veces, si se desea, se puede dar una instancia de `Future` a `Future.cache` que devuelve una nueva instancia que asegura que la acción solo se invocara una vez, con el valor en cache resuelto o rechazado que se utiliza para las llamadas posteriores a `fork`.
 
 ```js
 catDir('./src').fork(err => console.error(err), data => console.log(data));
 ```
 
-## Reference
+## Referencia
 
-### Constructors
+### Constructores
 
 #### `Future`
 ```hs
 :: ((e -> (), a -> ()) -> ()) -> Future e a
 ```
-Constructs a `Future` instance that represents some action that may possibly
-fail.
+Construye una instancia de `Future` que representa alguna accion que tiene posibilidades de fallar.
 
-### Static methods
+### Metodos estaticos
 
 #### `Future.of`
 ```hs
 :: a -> Future e a
 ```
-Creates a `Future` instance that resolves to the provided value.
+Crea una instancia de `Future` que se resuelve el valor proporcionado.
 
 #### `Future.reject`
 ```hs
 :: e -> Future e a
 ```
-Creates a `Future` instance that rejects with the provided value.
+Crea una instancia de `Future` que se rechaza con el valor proporcionado
 
 #### `Future.cache`
 ```hs
 :: Future e a -> Future e a
 ```
-Creates a new `Future` instance from the provided `Future` instance, where the
-resolved or rejected value is cached for subsequent calls to `fork`.
+Crea una nueva instancia `Future` de la instancia `Future` proporcionada, donde el valor resuelto o rechazado se almacena en cache para las llamadas posteriores a `fork`.
 
-### Instance methods
+### Metodos de instancia
 
 #### `future.fork`
 ```hs
 :: Future e a ~> (e -> ()) -> (a -> ()) -> ()
 ```
-Executes the actions described by the `Future` instance, calling the first
-argument with the rejected value if the instance is rejected or the second
-argument with the resolved value if the instance is resolved.
+Ejecuta las acciones descritas por la instancia de `Future`, llamando al primer argumento con el valor rechazado si se rechaza la instancia o el segundo argumento con el valor resuelto si se resuelve la instancia.
 
 #### `future.map`
 ```hs
 :: Future e a ~> (a -> b) -> Future e b
 ```
-Transforms the resolved value of this `Future` instance with the given function.
-If the instance is rejected, the provided function is not called.
+Transforma el valor resuelto de la instancia de `Future` con la funcion proporcionada. Si la instancia es rechazada la funcion proporcionada no sera llamada.
 
 #### `future.ap`
 ```hs
 :: Future e (a -> b) ~> Future e a -> Future e b
 ```
-Applies the resolved function of this `Future` instance to the resolved value of
-the provided `Future` instance, producing a resolved `Future` instance of the
-result. If either `Future` is rejected, then the returned `Future` instance will
-be rejected with that value. When `fork` is called on the returned `Future`
-instance, the actions of this `Future` instance and the provided `Future`
-instance will be executed in parallel.
+Aplica la funcion resuelta de esta instancia de `Future` al valor resuelto de la instancia de `Future` proporcionada, produciendo una instancia `Future` resuelta con el resultado. Si `Future` es rechazado, entonces la instancia de `Future` devuelta sera rechazada con ese valor. Cuando `fork` es llamado en la instancia devuelta, las acciones de esa instancia de `Future` y la instancia de `Future` proporcionada se ejecutara en paralelo.
 
 #### `future.chain`
 ```hs
 :: Future e a ~> (a -> Future e b) -> Future e b
 ```
-Calls the provided function with the resolved value of this `Future` instance,
-returning the new `Future` instance. If either `Future` instance is rejected,
-the returned `Future` instance will be rejected with that value.
+Llama a la funcion proporcionada con el valor resuelto de esa instancia de `Future`,  devolviendo la nueva instancia de `Future`. Si se rechaza cualquier instancia de `Future`, la instancia de `Future` devuelta se rechazara con ese valor.
 
 #### `future.chainReject`
 ```hs
 :: Future e a ~> (e -> Future e b) -> Future e b
 ```
-If this `Future` instance is rejected, the provided function will be called with
-the rejected value, where a new `Future` instance must be returned. This can
-be used to recover from a rejected `Future` instance. If this `Future` instance
-is resolved, the provided function will be ignored.
+Si se rechaza esta instancia de `Future`, la funcion proporcionada se llamara con el valor rechazado, donde una nueva instancia de `Future` se retornara. Esto se puede utilizar para recuperarse de una instancia de `Future` rechazada. Si se resuelve esta instancia de `Future`, se omitira la funcion proporcionada.
 
 #### `future.bimap`
 ```hs
 :: Future e a ~> (e -> f) -> (a -> b) -> Future f b
 ```
-Uses the provided functions to transform this `Future` instance when it becomes
-rejected or resolved, respectively.
+Utiliza las funciones proporcionadas para transformar esta instancia de `Future` cuando se rechaza o se resuelve respectivamente.
